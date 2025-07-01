@@ -14,7 +14,7 @@ pub fn display_thread_info() {
     let rayon_threads = rayon::current_num_threads();
 
     println!("💻 CPU cores: {num_cpus});
-    println!("🧵 Rayon thread pool size: {rayon_threads}");
+    println!(" Rayon thread pool size: {rayon_threads}");
 }
 
 #[derive(Debug, Clone)]
@@ -115,7 +115,7 @@ pub fn collect_file_info(files: Vec<String>) -> Result<Vec<FileInfo>, Box<dyn Er
     }
 
     println!(
-        "\nAnalyzing {} files with {} threads...",
+        "Analyzing {} files with {} threads...",
         files.len(),
         rayon::current_num_threads()
     );
@@ -139,7 +139,7 @@ pub fn collect_file_info(files: Vec<String>) -> Result<Vec<FileInfo>, Box<dyn Er
         .map(|file_path| FileInfo::new(file_path).ok())
         .collect();
 
-    pb.finish_with_message("✓ File analysis complete!");
+    pb.finish_with_message("File analysis complete!");
     println!();
 
     // Filter out failed files
@@ -175,9 +175,8 @@ pub fn create_dataframe(mut file_infos: Vec<FileInfo>) -> Result<DataFrame, Box<
     }
 
     println!(
-        "Found {} files in {} duplicate groups",
-        duplicate_count,
-        hash_groups.iter().filter(|(_, v)| v.len() > 1).count()
+        "Found {duplicate_count} files in {hash_groups.iter().filter(|(_, v)| v.len() > 1).count()} duplicate groups"
+        
     );
 
     // Extract data for DataFrame columns
@@ -234,7 +233,7 @@ pub fn generate_statistics(df: &DataFrame) -> Result<DataFrame, Box<dyn Error>> 
 
 // Validate duplicate detection logic
 pub fn validate_duplicates(df: &DataFrame) -> Result<(), Box<dyn Error>> {
-    println!("\n=== Duplicate Detection Validation ===");
+    println!("=== Duplicate Detection Validation ===");
 
     // Group by hash and check consistency
     let duplicates = df
@@ -244,7 +243,7 @@ pub fn validate_duplicates(df: &DataFrame) -> Result<(), Box<dyn Error>> {
         .collect()?;
 
     if duplicates.height() == 0 {
-        println!("✓ No duplicates found - validation passed");
+        println!("No duplicates found - validation passed");
         return Ok(());
     }
 
@@ -266,7 +265,7 @@ pub fn validate_duplicates(df: &DataFrame) -> Result<(), Box<dyn Error>> {
         println!("  Hash: {hash} -> {count} files");
     }
 
-    println!("✓ Duplicate detection validation completed");
+    println!("Duplicate detection validation completed");
     Ok(())
 }
 
@@ -333,7 +332,7 @@ pub fn run_with_dataframe(
     // Print summary statistics
     let stats = generate_statistics(&df)?;
 
-    println!("\n=== File Analysis Summary ===");
+    println!("=== File Analysis Summary ===");
     println!("{}", stats);
 
     // Validate duplicate detection
