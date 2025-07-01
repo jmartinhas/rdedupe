@@ -302,8 +302,7 @@ pub fn run_with_dataframe(
     pattern: &str,
     output_csv: Option<&str>,
 ) -> Result<DataFrame, Box<dyn Error>> {
-    println!("Scanning directory: {}", path);
-
+    println!("Scanning directory: {path}");
     let files = walk(path)?;
     let files = find(files, pattern);
 
@@ -330,7 +329,7 @@ pub fn run_with_dataframe(
     let stats = generate_statistics(&df)?;
 
     println!("=== File Analysis Summary ===");
-    println!("{}", stats);
+    println!("{stats}");
 
     // Validate duplicate detection
     validate_duplicates(&df)?;
@@ -344,7 +343,7 @@ pub fn run_with_dataframe(
 
     if duplicates.height() > 0 {
         println!("=== Duplicate Files Found ===");
-        println!("{}", duplicates);
+        println!("{duplicates}");
     } else {
         println!("No duplicate files found.");
     }
