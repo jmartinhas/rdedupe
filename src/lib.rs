@@ -13,7 +13,7 @@ pub fn display_thread_info() {
     let num_cpus = num_cpus::get();
     let rayon_threads = rayon::current_num_threads();
 
-    println!("💻 CPU cores: {num_cpus});
+    println!("CPU cores: {num_cpus}" );
     println!(" Rayon thread pool size: {rayon_threads}");
 }
 
@@ -173,9 +173,9 @@ pub fn create_dataframe(mut file_infos: Vec<FileInfo>) -> Result<DataFrame, Box<
             }
         }
     }
-
+    let dup_groups_count = hash_groups.iter().filter(|(_, v)| v.len() > 1).count();
     println!(
-        "Found {duplicate_count} files in {hash_groups.iter().filter(|(_, v)| v.len() > 1).count()} duplicate groups"
+        "Found {duplicate_count} files in {dup_groups_count} duplicate groups "
         
     );
 
@@ -243,7 +243,7 @@ pub fn validate_duplicates(df: &DataFrame) -> Result<(), Box<dyn Error>> {
         .collect()?;
 
     if duplicates.height() == 0 {
-        println!("No duplicates found - validation passed");
+        println!("No duplicates found - validation passed successfully ");
         return Ok(());
     }
 
@@ -262,10 +262,10 @@ pub fn validate_duplicates(df: &DataFrame) -> Result<(), Box<dyn Error>> {
     for row in 0..grouped.height() {
         let hash = grouped.column("md5_hash")?.get(row)?;
         let count = grouped.column("file_count")?.get(row)?;
-        println!("  Hash: {hash} -> {count} files");
+        println!("  Hash: {hash} -> {count} files ");
     }
 
-    println!("Duplicate detection validation completed");
+    println!("Duplicate detection validation completed successfully ");
     Ok(())
 }
 
@@ -279,7 +279,7 @@ pub fn generate_csv_report(df: &mut DataFrame, output_path: &str) -> Result<(), 
         .collect()?;
 
     if duplicates_only.height() == 0 {
-        println!("No duplicates found - CSV report not generated");
+        println!("No duplicates found - CSV report not generated.");
         return Ok(());
     }
 
@@ -310,7 +310,7 @@ pub fn run_with_dataframe(
     let files = walk(path)?;
     let files = find(files, pattern);
 
-    println!("Found {files.len} files matching pattern '{pattern}'");
+    println!("Found {} files matching pattern {}", files.len(), pattern);
 
     if files.is_empty() {
         println!("No files found to analyze.");
@@ -346,10 +346,10 @@ pub fn run_with_dataframe(
         .collect()?;
 
     if duplicates.height() > 0 {
-        println!("\n=== Duplicate Files Found ===");
+        println!("=== Duplicate Files Found ===");
         println!("{}", duplicates);
     } else {
-        println!("\nNo duplicate files found.");
+        println!("No duplicate files found.");
     }
 
     // Generate CSV report if requested
@@ -430,7 +430,8 @@ pub fn run(path: &str, pattern: &str) -> Result<(), Box<dyn Error>> {
 
     for duplicate in duplicates {
         println!("{duplicate:?}");
-    }
+    }   
+
 
     Ok(())
 }
