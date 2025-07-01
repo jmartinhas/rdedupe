@@ -12,7 +12,7 @@ use walkdir::WalkDir;
 pub fn display_thread_info() {
     let num_cpus = num_cpus::get();
     let rayon_threads = rayon::current_num_threads();
-    
+
     println!("💻 CPU cores: {}", num_cpus);
     println!("🧵 Rayon thread pool size: {}", rayon_threads);
 }
@@ -114,8 +114,12 @@ pub fn collect_file_info(files: Vec<String>) -> Result<Vec<FileInfo>, Box<dyn Er
         return Ok(Vec::new());
     }
 
-    println!("\nAnalyzing {} files with {} threads...", files.len(), rayon::current_num_threads());
-    
+    println!(
+        "\nAnalyzing {} files with {} threads...",
+        files.len(),
+        rayon::current_num_threads()
+    );
+
     let pb = indicatif::ProgressBar::new(files.len() as u64);
     let sty = ProgressStyle::default_bar()
         .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({percent}%) {msg}")
@@ -124,7 +128,7 @@ pub fn collect_file_info(files: Vec<String>) -> Result<Vec<FileInfo>, Box<dyn Er
 
     pb.set_style(sty);
     pb.set_message("Computing MD5 hashes...");
-    
+
     // Enable steady tick to ensure spinner is visible
     pb.enable_steady_tick(std::time::Duration::from_millis(100));
 
@@ -140,7 +144,7 @@ pub fn collect_file_info(files: Vec<String>) -> Result<Vec<FileInfo>, Box<dyn Er
 
     // Filter out failed files
     let valid_infos: Vec<FileInfo> = file_infos.into_iter().flatten().collect();
-    
+
     Ok(valid_infos)
 }
 
@@ -162,16 +166,19 @@ pub fn create_dataframe(mut file_infos: Vec<FileInfo>) -> Result<DataFrame, Box<
         if indices.len() > 1 {
             let group_id = hash.clone();
             duplicate_count += indices.len();
-            
+
             for &index in indices {
                 file_infos[index].is_duplicate = true;
                 file_infos[index].duplicate_group = Some(group_id.clone());
             }
         }
     }
-    
-    println!("Found {} files in {} duplicate groups", duplicate_count, 
-             hash_groups.iter().filter(|(_, v)| v.len() > 1).count());
+
+    println!(
+        "Found {} files in {} duplicate groups",
+        duplicate_count,
+        hash_groups.iter().filter(|(_, v)| v.len() > 1).count()
+    );
 
     // Extract data for DataFrame columns
     let paths: Vec<String> = file_infos.iter().map(|f| f.path.clone()).collect();
@@ -228,19 +235,19 @@ pub fn generate_statistics(df: &DataFrame) -> Result<DataFrame, Box<dyn Error>> 
 // Validate duplicate detection logic
 pub fn validate_duplicates(df: &DataFrame) -> Result<(), Box<dyn Error>> {
     println!("\n=== Duplicate Detection Validation ===");
-    
+
     // Group by hash and check consistency
     let duplicates = df
         .clone()
         .lazy()
         .filter(col("is_duplicate").eq(lit(true)))
         .collect()?;
-    
+
     if duplicates.height() == 0 {
         println!("✓ No duplicates found - validation passed");
         return Ok(());
     }
-    
+
     // Group duplicates by their hash to verify consistency
     let grouped = duplicates
         .clone()
@@ -248,17 +255,17 @@ pub fn validate_duplicates(df: &DataFrame) -> Result<(), Box<dyn Error>> {
         .group_by([col("md5_hash")])
         .agg([
             col("file_path").count().alias("file_count"),
-            col("duplicate_group").first().alias("group_id")
+            col("duplicate_group").first().alias("group_id"),
         ])
         .collect()?;
-    
+
     println!("Duplicate groups found:");
     for row in 0..grouped.height() {
         let hash = grouped.column("md5_hash")?.get(row)?;
         let count = grouped.column("file_count")?.get(row)?;
         println!("  Hash: {} -> {} files", hash, count);
     }
-    
+
     println!("✓ Duplicate detection validation completed");
     Ok(())
 }
@@ -271,7 +278,7 @@ pub fn generate_csv_report(df: &mut DataFrame, output_path: &str) -> Result<(), 
         .lazy()
         .filter(col("is_duplicate").eq(lit(true)))
         .collect()?;
-    
+
     if duplicates_only.height() == 0 {
         println!("No duplicates found - CSV report not generated");
         return Ok(());
@@ -279,10 +286,16 @@ pub fn generate_csv_report(df: &mut DataFrame, output_path: &str) -> Result<(), 
 
     let mut file = std::fs::File::create(output_path)?;
     let mut duplicates_df = duplicates_only;
-    
-    CsvWriter::new(&mut file).include_header(true).finish(&mut duplicates_df)?;
 
-    println!("CSV report generated: {} ({} duplicate files)", output_path, duplicates_df.height());
+    CsvWriter::new(&mut file)
+        .include_header(true)
+        .finish(&mut duplicates_df)?;
+
+    println!(
+        "CSV report generated: {} ({} duplicate files)",
+        output_path,
+        duplicates_df.height()
+    );
 
     Ok(())
 }
@@ -299,7 +312,7 @@ pub fn run_with_dataframe(
     let files = find(files, pattern);
 
     println!("Found {} files matching pattern '{}'", files.len(), pattern);
-    
+
     if files.is_empty() {
         println!("No files found to analyze.");
         return Ok(df! [
@@ -354,8 +367,11 @@ pub fn run_with_dataframe(
 Uses indicatif to show a progress bar
 */
 pub fn checksum(files: Vec<String>) -> Result<HashMap<String, Vec<String>>, Box<dyn Error>> {
-    println!("Computing checksums with {} threads...", rayon::current_num_threads());
-    
+    println!(
+        "Computing checksums with {} threads...",
+        rayon::current_num_threads()
+    );
+
     let pb = indicatif::ProgressBar::new(files.len() as u64);
     let sty = ProgressStyle::default_bar()
         .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({eta})")

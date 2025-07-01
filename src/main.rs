@@ -63,7 +63,7 @@ fn main() {
             //display the progress bar using indicatif
             rdedupe::display_thread_info();
             println!("Analyzing files in {} matching '{}'", path, pattern);
-            
+
             // Always use enhanced DataFrame functionality for better progress reporting
             let result = rdedupe::run_with_dataframe(&path, &pattern, csv.as_deref());
 
@@ -75,11 +75,11 @@ fn main() {
                         println!("Detailed CSV report saved to: {}", csv_path);
                     }
                 }
-                
+
                 Err(e) => println!("Error: {}", e),
             }
         }
-        
+
         Some(Commands::Count { path, pattern }) => {
             //count files matching a pattern
             println!("Counting files in {} matching {}", path, pattern);
