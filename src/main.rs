@@ -55,7 +55,7 @@ fn main() {
 
             //print files
             for file in files {
-                println!("{}", file);
+                println!("{file}");
             }
         }
         Some(Commands::Dedupe { path, pattern, csv }) => {
