@@ -13,7 +13,7 @@ pub fn display_thread_info() {
     let num_cpus = num_cpus::get();
     let rayon_threads = rayon::current_num_threads();
 
-    println!("CPU cores: {num_cpus}" );
+    println!("CPU cores: {num_cpus}");
     println!(" Rayon thread pool size: {rayon_threads}");
 }
 
@@ -174,10 +174,7 @@ pub fn create_dataframe(mut file_infos: Vec<FileInfo>) -> Result<DataFrame, Box<
         }
     }
     let dup_groups_count = hash_groups.iter().filter(|(_, v)| v.len() > 1).count();
-    println!(
-        "Found {duplicate_count} files in {dup_groups_count} duplicate groups "
-        
-    );
+    println!("Found {duplicate_count} files in {dup_groups_count} duplicate groups ");
 
     // Extract data for DataFrame columns
     let paths: Vec<String> = file_infos.iter().map(|f| f.path.clone()).collect();
@@ -430,8 +427,7 @@ pub fn run(path: &str, pattern: &str) -> Result<(), Box<dyn Error>> {
 
     for duplicate in duplicates {
         println!("{duplicate:?}");
-    }   
-
+    }
 
     Ok(())
 }
